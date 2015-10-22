@@ -1,5 +1,6 @@
 (ns tabouret.core
-  (:require [clj-http.client :as http]))
+  (:require [clj-http.client :as http])
+  (:import [org.apache.commons.lang3.text WordUtils]))
 
 (defn fetch-page
   [base-url page-id]
@@ -47,3 +48,19 @@
   ([transactions]
    "Computes the final balance, supposing the initial balance is zero."
    (get-balance 0 transactions)))
+
+(defn clean-text
+  [text]
+  "Cleans the given text."
+  ;; TODO : detect cities and provinces names to capitalize accordingly,
+  ;; or better, extract this info in another field.
+  ;; TODO : strip out account numbers and ids ?
+  (WordUtils/capitalizeFully text))
+
+(defn clean-transactions
+  [transactions]
+  "Applies some sanitation to the input transactions"
+  (->> transactions
+       (distinct) ;; remove exact duplicates
+       (map (fn [transaction]
+              (update-in transaction [:Company] clean-text)))))
