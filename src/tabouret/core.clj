@@ -7,7 +7,7 @@
   (http/get (str base-url page-id ".json")
             {:as :json}))
 
-(defn get-all-data
+(defn get-all-transactions
   [{:keys [base-url] :as conf}]
   "Iterates on API pages to get all the data. Returns a vector
    of all the transactions."
@@ -31,4 +31,19 @@
                  all-transactions-count
                  (inc current-page))))
       ;; something wrong happened (page is nil)
-      (throw (Exception. "Could not get page" current-page)))))
+      (throw (Exception. (str "Could not get page " current-page))))))
+
+(defn get-balance
+  ([initial-balance transactions]
+   "Computes the final balance after applying these transaction, given
+    an initial balance."
+   (->> transactions
+        (map (fn [transaction]
+               ;; read each amount as a number
+               ;; TODO : is number parsing robust enough ?
+               (read-string (:Amount transaction))))
+        ;; add everything to the initial-balance
+        (reduce + initial-balance)))
+  ([transactions]
+   "Computes the final balance, supposing the initial balance is zero."
+   (get-balance 0 transactions)))
