@@ -66,21 +66,36 @@
        (map (fn [transaction]
               (update-in transaction [:Company] clean-text)))))
 
-(defn expenses-by-ledger
-  [transactions]
-  "Groups transactions by ledger, and returns for each :
-   - transactions in this category,
-   - and the total expenses in the category."
-  (->> transactions
-       (group-by :Ledger)
-       (remove (fn [[cat trans]]
-                 (zero? (count cat)))) ;; filter out empty category
-       (map (fn [[cat trans]]
-              [cat {:transactions trans
-                    :totalExpenses (get-balance trans)} ]))
-       (into {})))
+(defn get-clean-transactions
+  [raw?]
+  "Returns available transactions, cleaned if raw? is falsy, and
+   as provided by the underlying REST API if raw? is truthy."
+  (if raw?
+    (get-all-transactions)
+    (clean-transactions (get-all-transactions))))
 
-(defn expenses-by-day
+(defn expenses-by-ledger
+  ([detailed? transactions]
+   "Groups transactions by ledger, and returns for each :
+   - all transactions in this category if detailed? is truthy,
+   - and the total expenses in the category."
+   (->> transactions
+        (group-by :Ledger)
+        (remove (fn [[cat trans]]
+                  (zero? (count cat)))) ;; filter out empty category
+        (map (fn [[cat trans]]
+               [cat (if detailed?
+                      ;; list the full transactions only if detailed?
+                      (assoc {:totalExpenses (get-balance trans)}
+                        :transactions trans)
+                      ;; else just return totalExpenses of this cat
+                      {:totalExpenses (get-balance trans)})]))
+        (into {})))
+  ([transactions]
+   "Same with detailed? defaulted to true."
+   (expenses-by-ledger true transactions)))
+
+(defn balance-by-day
   ([initial-balance transactions]
    "Computes successive balances after each day. The account
     initially is at initial-balance."
@@ -92,7 +107,7 @@
         ;; ensure days are ordered
         (sort-by first)
         ;; Build the successive balances each day
-        (reduce (fn [accumulator [date total]]
+        (reduce (fn [accumulator [date change]]
                   (let [last-data (last accumulator)
                         last-date (first last-data)
                         ;; ensure the balance is a valid number
@@ -101,11 +116,11 @@
                     ;; add this date and new total
                     ;; at the end of the accumulator
                     (conj accumulator
-                          [date (+ last-total total)])))
+                          [date (+ last-total change)])))
 
                 ;; initial empty accumulator
                 [])))
 
   ([transactions]
    "The same, assuming the initial balance is zero."
-   (expenses-by-day 0 transactions)))
+   (balance-by-day 0 transactions)))

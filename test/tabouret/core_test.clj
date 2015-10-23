@@ -41,18 +41,24 @@
     (is (= 10
            (count (:transactions
                    (get (expenses-by-ledger transactions)
-                        "Business Meals & Entertainment Expense")))))))
+                        "Business Meals & Entertainment Expense")))))
 
-(deftest expenses-by-day-test
+    ;; test 2-arity (will not return a transactions key)
+    (is (nil?
+         (:transactions
+          (get (expenses-by-ledger false transactions)
+               "Business Meals & Entertainment Expense"))))))
+
+(deftest balance-by-day-test
   (testing "Compute expenses by day"
     ;; balance at the end should be the same as balance test above
     (is (= 18377.16M
-           (second (last (expenses-by-day transactions)))))
+           (second (last (balance-by-day transactions)))))
 
     ;; Balance at first day
     (is (= -227.35M
-           (second (first (expenses-by-day transactions)))))
+           (second (first (balance-by-day transactions)))))
 
     ;; test 2-arity version
-    (is (= (- 1000 227.35M)
-           (second (first (expenses-by-day 1000 transactions)))))))
+    (is (= (+ 1000 -227.35M)
+           (second (first (balance-by-day 1000 transactions)))))))
