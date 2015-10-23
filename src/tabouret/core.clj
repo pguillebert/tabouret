@@ -64,3 +64,17 @@
        (distinct) ;; remove exact duplicates
        (map (fn [transaction]
               (update-in transaction [:Company] clean-text)))))
+
+(defn expenses-by-ledger
+  [transactions]
+  "Groups transactions by ledger, and returns for each :
+   - transactions in this category,
+   - and the total expenses in the category."
+  (->> transactions
+       (group-by :Ledger)
+       (remove (fn [[cat trans]]
+                 (zero? (count cat)))) ;; filter out empty category
+       (map (fn [[cat trans]]
+              [cat {:transactions trans
+                    :totalExpenses (get-balance trans)} ]))
+       (into {})))

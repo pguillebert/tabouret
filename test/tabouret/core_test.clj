@@ -33,3 +33,14 @@
     (is (= 36 (count (clean-transactions transactions))))
     (is (= "Nesters Market #x0064 Vancouver Bc"
            (:Company (last (clean-transactions transactions)))))))
+
+(deftest expenses-by-ledger-test
+  (testing "dispatch expenses by ledger"
+    (is (= -1851.76M
+           (:totalExpenses
+            (get (expenses-by-ledger transactions)
+                 "Business Meals & Entertainment Expense"))))
+    (is (= 10
+           (count (:transactions
+                   (get (expenses-by-ledger transactions)
+                        "Business Meals & Entertainment Expense")))))))
