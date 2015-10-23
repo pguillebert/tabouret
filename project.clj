@@ -1,4 +1,4 @@
-(defproject tabouret "0.1.0-SNAPSHOT"
+(defproject tabouret "0.1.0"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -17,14 +17,14 @@
                  ;; Web router
                  [compojure "1.4.0"]
                  ;; Templating system
-                 [selmer "0.9.2"]
+                 [selmer "0.9.3"]
                  ;; Ring middleware
                  [ring "1.4.0" :exclusions [ring/ring-jetty-adapter]]
                  [ring/ring-defaults "0.1.5"]
                  [metosin/ring-middleware-format "0.6.0"]
                  [metosin/ring-http-response "0.6.5"]
                  ;; markdown interpreter
-                 [markdown-clj "0.9.75"]
+                 [markdown-clj "0.9.76"]
                  ;; Web container
                  [org.immutant/web "2.1.0"]
                  ;; Java imports for text cleanup functions
