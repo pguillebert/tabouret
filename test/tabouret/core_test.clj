@@ -26,6 +26,7 @@
 (deftest balance-test
   (testing "compute final balance"
     (is (= 18377.16M (get-balance transactions)))
+    ;; test 2-arity version
     (is (= 19377.16M (get-balance 1000 transactions)))))
 
 (deftest cleanup-test
@@ -44,3 +45,17 @@
            (count (:transactions
                    (get (expenses-by-ledger transactions)
                         "Business Meals & Entertainment Expense")))))))
+
+(deftest expenses-by-day-test
+  (testing "Compute expenses by day"
+    ;; balance at the end should be the same as balance test above
+    (is (= 18377.16M
+           (second (last (expenses-by-day transactions)))))
+
+    ;; Balance at first day
+    (is (= -227.35M
+           (second (first (expenses-by-day transactions)))))
+
+    ;; test 2-arity version
+    (is (= (- 1000 227.35M)
+           (second (first (expenses-by-day 1000 transactions)))))))

@@ -59,7 +59,7 @@
 
 (defn clean-transactions
   [transactions]
-  "Applies some sanitation to the input transactions"
+  "Applies some sanitation to the input transactions."
   (->> transactions
        (distinct) ;; remove exact duplicates
        (map (fn [transaction]
@@ -78,3 +78,33 @@
               [cat {:transactions trans
                     :totalExpenses (get-balance trans)} ]))
        (into {})))
+
+(defn expenses-by-day
+  ([initial-balance transactions]
+   "Computes successive balances after each day. The account
+    initially is at initial-balance."
+   (->> transactions
+        (group-by :Date)
+        ;; get the total change for each day
+        (map (fn [[date transactions]]
+               [date (get-balance transactions)]))
+        ;; ensure days are ordered
+        (sort-by first)
+        ;; Build the successive balances each day
+        (reduce (fn [accumulator [date total]]
+                  (let [last-data (last accumulator)
+                        last-date (first last-data)
+                        ;; ensure the balance is a valid number
+                        last-total (or (second last-data)
+                                       initial-balance)]
+                    ;; add this date and new total
+                    ;; at the end of the accumulator
+                    (conj accumulator
+                          [date (+ last-total total)])))
+
+                ;; initial empty accumulator
+                [])))
+
+  ([transactions]
+   "The same, assuming the initial balance is zero."
+   (expenses-by-day 0 transactions)))
