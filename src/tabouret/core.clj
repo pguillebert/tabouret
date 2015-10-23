@@ -4,15 +4,15 @@
   (:import [org.apache.commons.lang3.text WordUtils]))
 
 (defn fetch-page
-  [page-id]
   "Fetches and JSON-decodes page at index page-id."
+  [page-id]
   (let [url (str (env :base-url) page-id ".json")]
     (http/get url {:as :json})))
 
 (defn get-all-transactions
-  []
   "Iterates on API pages to get all the data. Returns a vector
-   of all the transactions."
+  of all the transactions."
+  []
   (loop [accumulator []
          transactions-count 0
          current-page 1]
@@ -36,9 +36,10 @@
       (throw (Exception. (str "Could not get page " current-page))))))
 
 (defn get-balance
+  "Computes the final balance after applying these transaction,
+  given an initial balance. One-arity version supposes the initial
+  balance is zero."
   ([initial-balance transactions]
-   "Computes the final balance after applying these transaction, given
-    an initial balance."
    (->> transactions
         (map (fn [transaction]
                ;; read each amount as a number
@@ -47,38 +48,38 @@
         ;; add everything to the initial-balance
         (reduce + initial-balance)))
   ([transactions]
-   "Computes the final balance, supposing the initial balance is zero."
    (get-balance 0 transactions)))
 
 (defn clean-text
-  [text]
   "Cleans the given text."
+  [text]
   ;; TODO : detect cities and provinces names to capitalize accordingly,
   ;; or better, extract this info in another field.
   ;; TODO : strip out account numbers and ids ?
   (WordUtils/capitalizeFully text))
 
 (defn clean-transactions
-  [transactions]
   "Applies some sanitation to the input transactions."
+  [transactions]
   (->> transactions
        (distinct) ;; remove exact duplicates
        (map (fn [transaction]
               (update-in transaction [:Company] clean-text)))))
 
 (defn get-clean-transactions
-  [raw?]
   "Returns available transactions, cleaned if raw? is falsy, and
-   as provided by the underlying REST API if raw? is truthy."
+  as provided by the underlying REST API if raw? is truthy."
+  [raw?]
   (if raw?
     (get-all-transactions)
     (clean-transactions (get-all-transactions))))
 
 (defn expenses-by-ledger
+  "Groups transactions by ledger, and returns for each :
+  - all transactions in this category if detailed? is truthy,
+  - and the total expenses in the category.
+  One-arity version has detailed? defaulted to true."
   ([detailed? transactions]
-   "Groups transactions by ledger, and returns for each :
-   - all transactions in this category if detailed? is truthy,
-   - and the total expenses in the category."
    (->> transactions
         (group-by :Ledger)
         (remove (fn [[cat trans]]
@@ -91,14 +92,15 @@
                       ;; else just return totalExpenses of this cat
                       {:totalExpenses (get-balance trans)})]))
         (into {})))
+
   ([transactions]
-   "Same with detailed? defaulted to true."
    (expenses-by-ledger true transactions)))
 
 (defn balance-by-day
+  "Computes successive balances after each day. The account
+  initially is at initial-balance.
+  One arity assumes the initial balance is zero."
   ([initial-balance transactions]
-   "Computes successive balances after each day. The account
-    initially is at initial-balance."
    (->> transactions
         (group-by :Date)
         ;; get the total change for each day
@@ -122,5 +124,4 @@
                 [])))
 
   ([transactions]
-   "The same, assuming the initial balance is zero."
    (balance-by-day 0 transactions)))

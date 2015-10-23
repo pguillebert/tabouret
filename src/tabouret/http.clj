@@ -16,14 +16,16 @@
     (cond
       (string? port) (Integer/parseInt port)
       (number? port) port
-      :else          (throw (Exception. (str "invalid port value: " port))))))
+      :else          (throw (Exception. (str "invalid port value: "
+                                             port))))))
 
 (defn stop-nrepl []
   (when-let [server @nrepl-server]
     (nrepl/stop-server server)))
 
 (defn start-nrepl
-  "Start a network repl for debugging when the :nrepl-port is set in the environment."
+  "Start a network repl for debugging when the :nrepl-port
+  is set in the environment."
   []
   (if @nrepl-server
     (timbre/error "nREPL is already running!")
