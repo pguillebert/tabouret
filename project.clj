@@ -30,4 +30,29 @@
                  ;; Java imports for text cleanup functions
                  [org.apache.commons/commons-lang3 "3.4"]]
 
+  :min-lein-version "2.0.0"
+  :jvm-opts ["-server"]
+
+  :plugins [[lein-environ "1.0.1"]]
+  :profiles
+  {:uberjar {:omit-source true
+             :env {:production true
+                   :base-url "http://resttest.bench.co/transactions/"}
+             :aot :all}
+   :dev          [:project/dev :profiles/dev]
+   :test         [:project/test :profiles/test]
+   :project/dev  {:repl-options {:init-ns tabouret.core}
+                  ;; when :nrepl-port is set the application
+                  ;; starts the nREPL server on load
+                  :env {:dev        true
+                        :base-url "http://resttest.bench.co/transactions/"
+                        :port       3000
+                        :nrepl-port 7000}}
+   :project/test {:env {:test       true
+                        :base-url "http://resttest.bench.co/transactions/"
+                        :port       3001
+                        :nrepl-port 7001}}
+   :profiles/dev {}
+   :profiles/test {}}
+
   :main tabouret.http)

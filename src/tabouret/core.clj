@@ -1,22 +1,23 @@
 (ns tabouret.core
-  (:require [clj-http.client :as http])
+  (:require [clj-http.client :as http]
+            [environ.core :refer [env]])
   (:import [org.apache.commons.lang3.text WordUtils]))
 
 (defn fetch-page
-  [base-url page-id]
+  [page-id]
   "Fetches and JSON-decodes page at index page-id."
-  (http/get (str base-url page-id ".json")
-            {:as :json}))
+  (let [url (str (env :base-url) page-id ".json")]
+    (http/get url {:as :json})))
 
 (defn get-all-transactions
-  [{:keys [base-url] :as conf}]
+  []
   "Iterates on API pages to get all the data. Returns a vector
    of all the transactions."
   (loop [accumulator []
          transactions-count 0
          current-page 1]
     ;; fetch the page at current-page
-    (if-let [page (:body (fetch-page base-url current-page))]
+    (if-let [page (:body (fetch-page current-page))]
       (let [expected-count (:totalCount page)
             new-transactions (:transactions page)
             all-transactions-count (+ transactions-count

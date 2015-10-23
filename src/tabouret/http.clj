@@ -3,7 +3,8 @@
             [immutant.web :as immutant]
             [clojure.tools.nrepl.server :as nrepl]
             [taoensso.timbre :as timbre]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]])
+  (:gen-class))
 
 ;; Most of this namspace is a stripped down version of Luminus sample project,
 ;; see http://www.luminusweb.net/

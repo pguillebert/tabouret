@@ -2,10 +2,7 @@
   (:require [clojure.test :refer :all]
             [tabouret.core :refer :all]))
 
-
-(def conf {:base-url "http://resttest.bench.co/transactions/"})
-
-(def transactions (get-all-transactions conf))
+(def transactions (get-all-transactions))
 
 (deftest iterate-test
   (testing "Iterate all the data (should return 38 results)"

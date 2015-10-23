@@ -5,13 +5,18 @@
             [compojure.route :as route]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.format :refer [wrap-restful-format]]
+            [clojure.pprint]
+            [environ.core :refer [env]]
             [clojure.java.io :as io]))
 
 (defn home-page []
   (layout/render "home.html"))
 
 (defn about-page []
-  (layout/render "about.html"))
+  (layout/render "about.html"
+                 {:env (-> env
+                           (clojure.pprint/pprint)
+                           (with-out-str))}))
 
 (defn apidoc-page []
   (layout/render "apidoc.html"
