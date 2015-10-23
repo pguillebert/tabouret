@@ -42,7 +42,7 @@
         (map (fn [transaction]
                ;; read each amount as a number
                ;; TODO : is number parsing robust enough ?
-               (read-string (:Amount transaction))))
+               (bigdec (:Amount transaction))))
         ;; add everything to the initial-balance
         (reduce + initial-balance)))
   ([transactions]

@@ -25,8 +25,8 @@
 
 (deftest balance-test
   (testing "compute final balance"
-    (is (= 18377.16 (get-balance transactions)))
-    (is (= 19377.16 (get-balance 1000 transactions)))))
+    (is (= 18377.16M (get-balance transactions)))
+    (is (= 19377.16M (get-balance 1000 transactions)))))
 
 (deftest cleanup-test
   (testing "test cleanup functions"
